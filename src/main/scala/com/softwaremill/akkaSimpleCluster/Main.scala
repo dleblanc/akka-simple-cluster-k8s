@@ -2,7 +2,7 @@ package com.softwaremill.akkaSimpleCluster
 
 import akka.actor.ActorSystem
 import akka.cluster.Cluster
-import akka.management.AkkaManagement
+import akka.management.scaladsl.AkkaManagement
 import akka.management.cluster.bootstrap.ClusterBootstrap
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.Http
