@@ -6,13 +6,19 @@ scalaVersion := "2.12.6"
 
 resolvers += Resolver.bintrayRepo("tanukkii007", "maven")
 
-enablePlugins(JavaServerAppPackaging, DockerPlugin)
+mainClass := Some("com.softwaremill.akkaSimpleCluster.Main")
+
+// Ash is used for Alpine images
+enablePlugins(DockerPlugin, AshScriptPlugin)
+
+// This would be used instead of the above if you were based on plain bash based images (eg: Non-Alpine)
+//enablePlugins(DockerPlugin, JavaServerAppPackaging)
 
 val akkaVersion = "2.5.21"
 val akkaHttpVersion = "10.1.7"
 val akkaManagementVersion = "1.0.0-RC3"
 
-libraryDependencies ++=Seq(
+libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
   "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
@@ -28,5 +34,19 @@ libraryDependencies ++=Seq(
   "com.github.TanUkkii007" %% "akka-cluster-custom-downing" % "0.0.12"
 )
 
-dockerBaseImage := "openjdk:8"
-dockerUsername := Some("softwaremill")
+// CHANGE ME: The repo you want to push to - GCR is handy when running on GKE
+dockerRepository := Some("gcr.io")
+
+// CHANGE ME: The name of the docker image you'll deploy with
+packageName in Docker := "kubernetes-playground-230221/akka-simple-cluster-k8s"
+
+//dockerBaseImage := "openjdk:8u181-jre-stretch"
+// Use a smaller image instead: the IBM OpenJ9 JRE running on an Alpine image
+dockerBaseImage := "adoptopenjdk/openjdk8-openj9:jdk8u202-b08_openj9-0.12.1-alpine-slim"
+
+dockerExposedPorts ++= Seq(8080, 2551, 8588)
+dockerUpdateLatest := true
+
+// Don't run as the root user - run as "guest" instead.
+daemonUserUid in Docker := Some("405")
+daemonUser in Docker := "guest"
