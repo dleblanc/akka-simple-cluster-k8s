@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: akka-cluster
+  name: akka-cluster
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: akka-cluster
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: akka-cluster
+    spec:
+      serviceAccountName: akka-cluster-sa
+      containers:
+      - image: gcr.io/kubernetes-playground-230221/akka-simple-cluster-k8s:latest
+        name: akka-simple-cluster-k8s
+        env:
+        - name: JAVA_OPTS
+          value: "-Dconfig.file=/opt/docker/etc/application.conf -Xmx256m"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+        ports:
+        - name: remoting
+          containerPort: 2551
+        - name: api
+          containerPort: 8080
+        - name: management
+          containerPort: 8558
+        volumeMounts:
+          - name: config-volume
+            mountPath: /opt/docker/etc
+        livenessProbe:
+          httpGet:
+            path: /alive
+            port: management
+          initialDelaySeconds: 80
+
+        # GKE taking a long time to start this up - let it wait for a bit.
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: management
+          initialDelaySeconds: 80
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+      volumes:
+        - name: config-volume
+          configMap:
+            name: akka-cluster-configmap
+      affinity:
+        podAntiAffinity: # Don't schedule two pods onto the same host (spread for redundancy)
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - akka-cluster
+              topologyKey: "kubernetes.io/hostname"

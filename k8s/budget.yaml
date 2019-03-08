@@ -1,0 +1,10 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: akka-cluster-pdb
+spec:
+  # Try to maintain pods on at least 2 nodes (eg: when draining)
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: akka-cluster
