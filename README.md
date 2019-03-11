@@ -9,8 +9,6 @@ repo, specifically to support:
  * Running pods on separate nodes for proper redundancy (using anti-affinity)
  * Starting a minimal cluster in a non-K8s environment using the "config" bootstrap approach
  * Being run from a light weight Alpine base image (optional)
- * Running with IBM's OpenJ9 JVM (also optional)
-
 
 ### Running within GKE:
 

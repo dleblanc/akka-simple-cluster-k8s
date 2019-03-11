@@ -40,9 +40,7 @@ dockerRepository := Some("gcr.io")
 // CHANGE ME: The name of the docker image you'll deploy with
 packageName in Docker := "kubernetes-playground-230221/akka-simple-cluster-k8s"
 
-//dockerBaseImage := "openjdk:8u181-jre-stretch"
-// Use a smaller image instead: the IBM OpenJ9 JRE running on an Alpine image
-dockerBaseImage := "adoptopenjdk/openjdk8-openj9:jdk8u202-b08_openj9-0.12.1-alpine-slim"
+dockerBaseImage := "adoptopenjdk/openjdk8:jdk8u202-b08-alpine-slim"
 
 dockerExposedPorts ++= Seq(8080, 2551, 8588)
 dockerUpdateLatest := true
