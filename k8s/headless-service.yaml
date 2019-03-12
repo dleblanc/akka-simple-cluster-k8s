@@ -1,0 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: akka-cluster
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: akka-cluster
+  ports:
+  - protocol: TCP
+    name: management
+    port: 8558
+    targetPort: management
+  - protocol: TCP
+    name: api
+    port: 8080
+    targetPort: api
